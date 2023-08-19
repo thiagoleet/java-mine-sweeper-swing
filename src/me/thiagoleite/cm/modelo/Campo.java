@@ -2,6 +2,7 @@ package me.thiagoleite.cm.modelo;
 
 import java.util.ArrayList;
 import java.util.List;
+// import java.util.function.BiConsumer;
 
 public class Campo {
     // Flags
@@ -15,10 +16,22 @@ public class Campo {
 
     // Interação com arredores
     private List<Campo> vizinhos = new ArrayList<Campo>();
+    // Pode ser usado também um BiConsumer
+    private List<CampoObserver> observers = new ArrayList<>();
+    // private List<BiConsumer<Campo, CampoEvento>> observers =new ArrayList<>()
 
     Campo(int linha, int coluna) {
         this.coluna = coluna;
         this.linha = linha;
+    }
+
+    public void registrarObservador(CampoObserver observer) {
+        observers.add(observer);
+    }
+
+    private void notificarObservadores(CampoEvento evento) {
+        observers.stream()
+                .forEach(obs -> obs.eventoOcorreu(this, evento));
     }
 
     boolean adicionarVizinho(Campo vizinho) {
@@ -44,17 +57,23 @@ public class Campo {
     void alternarMarcacao() {
         if (!aberto) {
             marcado = !marcado;
-        }
 
+            if(marcado) {
+                notificarObservadores(CampoEvento.MARCAR);
+            } else {
+                notificarObservadores(CampoEvento.DESMARCAR);
+            }
+        }
     }
 
     boolean abrir() {
         if (!aberto && !marcado) {
-            aberto = true;
-
             if (minado) {
-                // TODO: Implementar nova versão
+                notificarObservadores(CampoEvento.EXPLODIR);
+                return true;
             }
+
+            setAberto(true);
 
             if (vizinhancaSegura()) {
                 // recursividade
@@ -94,7 +113,12 @@ public class Campo {
 
 
     void setAberto(boolean aberto) {
+
         this.aberto = aberto;
+
+        if(aberto) {
+            notificarObservadores(CampoEvento.ABRIR);
+        }
     }
 
     public boolean isMinado() {
