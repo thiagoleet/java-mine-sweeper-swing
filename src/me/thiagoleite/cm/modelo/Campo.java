@@ -54,7 +54,7 @@ public class Campo {
         }
     }
 
-    void alternarMarcacao() {
+    public void alternarMarcacao() {
         if (!aberto) {
             marcado = !marcado;
 
@@ -66,21 +66,17 @@ public class Campo {
         }
     }
 
-    boolean abrir() {
+    public boolean abrir() {
         if (!aberto && !marcado) {
             if (minado) {
                 notificarObservadores(CampoEvento.EXPLODIR);
                 return true;
             }
-
             setAberto(true);
 
             if (vizinhancaSegura()) {
                 // recursividade
                 vizinhos.forEach(vizinho -> vizinho.abrir());
-
-                // Pode ser usado também por Method Reference
-                // vizinhos.forEach(Campo::abrir);
             }
 
             return true;
@@ -90,7 +86,7 @@ public class Campo {
 
     }
 
-    boolean vizinhancaSegura() {
+    public boolean vizinhancaSegura() {
         return vizinhos.stream()
                 .noneMatch(vizinho -> vizinho.minado);
     }
@@ -113,7 +109,6 @@ public class Campo {
 
 
     void setAberto(boolean aberto) {
-
         this.aberto = aberto;
 
         if(aberto) {
@@ -140,8 +135,8 @@ public class Campo {
         return desvendado || protegido;
     }
 
-    long minasNaVizinhanca() {
-        return vizinhos.stream()
+    public int minasNaVizinhanca() {
+        return (int) vizinhos.stream()
                 .filter(vizinho -> vizinho.minado)
                 .count();
     }
@@ -150,5 +145,7 @@ public class Campo {
         aberto = false;
         minado = false;
         marcado = false;
+
+        notificarObservadores(CampoEvento.REINICIAR);
     }
 }

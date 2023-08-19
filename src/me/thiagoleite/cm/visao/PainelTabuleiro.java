@@ -2,7 +2,8 @@ package me.thiagoleite.cm.visao;
 
 import me.thiagoleite.cm.modelo.Tabuleiro;
 
-import javax.swing.JPanel;
+import javax.swing.*;
+import javax.swing.JOptionPane;
 import java.awt.GridLayout;
 
 public class PainelTabuleiro extends JPanel {
@@ -12,8 +13,15 @@ public class PainelTabuleiro extends JPanel {
 
         tabuleiro.paraCadaCampo(c -> add(new BotaoCampo(c)));
         tabuleiro.registrarObservador(e -> {
-            // TODO: mostrar resultado pro usuário
+            SwingUtilities.invokeLater(() -> {
+                if (e.isGanhou()) {
+                    JOptionPane.showMessageDialog(this, "Ganhou :)");
+                } else {
+                    JOptionPane.showMessageDialog(this, "Perdeu :(");
+                }
 
+                tabuleiro.reiniciar();
+            });
         });
     }
 }
